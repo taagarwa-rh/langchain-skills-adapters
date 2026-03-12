@@ -1,0 +1,45 @@
+[project]
+name = "langchain-skills-adapters"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Taylor Agarwal", email = "taagarwa@redhat.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "langchain>=1.2.11",
+    "python-frontmatter>=1.1.0",
+]
+
+[project.scripts]
+langchain-skills-adapters = "langchain_skills_adapters:main"
+
+[project.optional-dependencies]
+examples = [
+    "langchain-community>=0.4.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.7,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.15.5",
+]
+
+[tool.ruff]
+line-length = 140
+
+[tool.ruff.lint]
+select = ["E", "F", "D", "C", "N"]
+ignore = [
+    "E501", # line-too-long
+    "E402", # module-import-not-at-top-file
+    "D203", # one-blank-line-before-class
+    "D212", # multi-line-summary-first-line
+    "D100", # undocumented-public-module
+]
+per-file-ignores = { "tests/*" = ["D"] }
