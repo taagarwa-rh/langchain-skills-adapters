@@ -4,7 +4,8 @@ Langchain adapters to support skills in your agent.
 
 ## Features
 
-- Supports the [Anthropic Open Standard Format for Skills](https://agentskills.io/home)
+- Supports the [Anthropic Open Standard for Skills](https://agentskills.io/home)
+- Follows the [principle of progressive disclosure](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#three-types-of-skill-content-three-levels-of-loading) - Only loads skills if they are needed
 - Loads skills from anywhere on your system
 - Use as a tool or add as middleware to your agents
 
@@ -24,7 +25,7 @@ pip install langchain-skills-adapters
 
 ## Skills Format
 
-Skills must follow the [Anthropic Open Standard for Skills]().
+Skills must follow the [Anthropic Open Standard for Skills](https://agentskills.io/home).
 This includes having frontmatter with at minimum the name and skill description.
 
 ```md
