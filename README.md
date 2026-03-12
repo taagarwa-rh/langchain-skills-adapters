@@ -63,7 +63,7 @@ from langchain_community.tools.file_management.read import ReadFileTool
 from langchain_skills_adapters import SkillsTool
 
 # Create the SkillsTool pointed to your skills directory
-skills_dir = "examples/skills"
+skills_dir = "/path/to/skills/"
 skills_tool = SkillsTool(skills_dir)
 print(skills_tool.description)
 
