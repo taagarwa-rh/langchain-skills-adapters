@@ -1,7 +1,7 @@
 [project]
 name = "langchain-skills-adapters"
 version = "0.1.0"
-description = "Add your description here"
+description = "Langchain adapters to support skills in your agent"
 readme = "README.md"
 authors = [
     { name = "Taylor Agarwal", email = "taagarwa@redhat.com" }
