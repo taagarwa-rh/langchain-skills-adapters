@@ -36,7 +36,7 @@ class SkillsTool(BaseTool):
 
         # Generate tool name, description, and args schema
         name = "activate_skill"
-        skill_catalog = skills_loader.skill_catalog.to_str()
+        skill_catalog = skills_loader.get_catalog()
         description = (
             "The following skills provide specialized instructions for specific tasks. "
             f"When a task matches a skill's description, call the {name} tool "

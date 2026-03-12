@@ -65,6 +65,28 @@ class TestSkillsLoaderLoad:
             SkillsLoader(tmp_path)
 
 
+class TestSkillsLoaderGetCatalog:
+    def test_returns_string(self, skills_path):
+        loader = SkillsLoader(skills_path)
+        catalog = loader.get_catalog()
+        assert isinstance(catalog, str)
+
+    def test_contains_available_skills_tags(self, skills_path):
+        loader = SkillsLoader(skills_path)
+        catalog = loader.get_catalog()
+        assert "<available_skills>" in catalog
+        assert "</available_skills>" in catalog
+
+    def test_contains_loaded_skill(self, skills_path):
+        loader = SkillsLoader(skills_path)
+        catalog = loader.get_catalog()
+        assert "my-skill" in catalog
+
+    def test_empty_when_no_skills(self, tmp_path):
+        loader = SkillsLoader(tmp_path)
+        assert loader.get_catalog() == ""
+
+
 class TestSkillsLoaderGetSkill:
     def test_returns_skill_by_name(self, skills_path):
         loader = SkillsLoader(skills_path)

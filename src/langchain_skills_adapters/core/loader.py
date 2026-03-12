@@ -47,6 +47,10 @@ class SkillsLoader:
         self.skill_catalog = SkillCatalog(skills=skills)
         self.skill_map = {skill.name: skill for skill in skills}
 
+    def get_catalog(self):
+        """Get the skill catalog."""
+        return self.skill_catalog.to_str()
+
     def get_skill(self, name: str) -> Skill:
         """Get a skill by name."""
         try:
