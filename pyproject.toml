@@ -7,10 +7,20 @@ authors = [
     { name = "Taylor Agarwal", email = "taagarwa@redhat.com" }
 ]
 requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "Apache-2.0"
+license-files = ["LICEN[CS]E*"]
 dependencies = [
     "langchain>=1.2.11",
     "python-frontmatter>=1.1.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/taagarwa-rh/langchain-skills-adapters"
+Issues = "https://github.com/taagarwa-rh/langchain-skills-adapters/issues"
 
 [project.scripts]
 langchain-skills-adapters = "langchain_skills_adapters:main"
