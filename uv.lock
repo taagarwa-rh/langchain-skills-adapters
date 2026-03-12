@@ -670,12 +670,8 @@ version = "0.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "langchain" },
-    { name = "python-frontmatter" },
-]
-
-[package.optional-dependencies]
-examples = [
     { name = "langchain-community" },
+    { name = "python-frontmatter" },
 ]
 
 [package.dev-dependencies]
@@ -687,7 +683,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "langchain", specifier = ">=1.2.11" },
-    { name = "langchain-community", marker = "extra == 'examples'", specifier = ">=0.4.1" },
+    { name = "langchain-community", specifier = ">=0.4.1" },
     { name = "python-frontmatter", specifier = ">=1.1.0" },
 ]
 provides-extras = ["examples"]

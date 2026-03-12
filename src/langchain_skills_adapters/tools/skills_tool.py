@@ -24,13 +24,11 @@ class SkillsTool(BaseTool):
     def __init__(self, skills_path: PathLike):
         """
         Create a new instance of the SkillsTool.
-        
+
         Args:
-            skills_path: Path to the directory containing skills.
+            skills_path: Absolute path to the directory containing skills.
 
         """
-        skills_path = Path(skills_path)
-
         # Initialize skill loader
         skills_loader = SkillsLoader(skills_path=skills_path)
 
