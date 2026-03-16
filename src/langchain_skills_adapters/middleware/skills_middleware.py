@@ -20,10 +20,10 @@ class SkillsMiddleware(AgentMiddleware):
         If there is no system prompt, one will be created.
         It also adds a skills_file_read tool to your agent's tool list.
         This tool allows your agent to read files from the specified skills path.
-        If your agent needs to execute scripts from your skill, it's recommended that you add script execution tool to your agent.
+        If your agent needs to execute scripts from your skill, it's recommended that you add a script execution tool to your agent.
 
         Args:
-            skills_path: Path to the directory containing skills.
+            skills_path (PathLike): Path to the directory containing skills.
 
         """
         # Create system prompt
@@ -44,7 +44,17 @@ class SkillsMiddleware(AgentMiddleware):
         self.tools = [self.read_file_tool]
 
     def wrap_model_call(self, request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]):
-        """Update system messages before model call."""
+        """
+        Update system messages before model call.
+
+        Args:
+            request (ModelRequest): Request object containing the model call.
+            handler (Callable[[ModelRequest], ModelResponse]): Handler function to process the model call.
+
+        Returns:
+            ModelResponse: Response from the handler.
+
+        """
         if request.system_message is not None:
             new_content = list(request.system_message.content_blocks) + [{"type": "text", "text": self.system_prompt}]
         else:
