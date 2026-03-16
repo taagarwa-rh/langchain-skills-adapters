@@ -1,6 +1,6 @@
 [project]
 name = "langchain-skills-adapters"
-version = "0.1.3"
+version = "0.1.4"
 description = "Langchain adapters to support skills in your agent"
 readme = "README.md"
 authors = [
