@@ -64,3 +64,10 @@ class TestSkillsToolRun:
         result = tool.invoke({"name": "does-not-exist"})
         assert "Error" in result
         assert "does-not-exist" in result
+
+    def test_generic_exception_returns_error(self, skills_path):
+        tool = SkillsTool(skills_path)
+        # Force a non-ValueError exception by breaking the skill object
+        tool.skills_loader.skill_map["my-skill"] = None
+        result = tool._run("my-skill")
+        assert "Error:" in result

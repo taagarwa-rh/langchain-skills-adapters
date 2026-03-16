@@ -97,3 +97,37 @@ class TestSkillsMiddlewareWrapModelCall:
         assert len(new_system_message.content) == 3
         assert new_system_message.content[0] == original_blocks[0]
         assert new_system_message.content[1] == original_blocks[1]
+
+    def test_creates_system_message_when_none(self, skills_path):
+        mw = SkillsMiddleware(skills_path)
+        mock_request = MagicMock()
+        mock_request.system_message = None
+        mock_request.override.return_value = mock_request
+
+        mock_handler = MagicMock()
+        mock_handler.return_value = MagicMock()
+
+        mw.wrap_model_call(mock_request, mock_handler)
+
+        mock_request.override.assert_called_once()
+        new_system_message = mock_request.override.call_args.kwargs["system_message"]
+
+        assert isinstance(new_system_message, SystemMessage)
+        assert len(new_system_message.content) == 1
+        assert new_system_message.content[0]["text"] == mw.system_prompt
+
+    def test_handler_called_when_system_message_is_none(self, skills_path):
+        mw = SkillsMiddleware(skills_path)
+        mock_request = MagicMock()
+        mock_request.system_message = None
+        overridden = MagicMock()
+        mock_request.override.return_value = overridden
+
+        mock_handler = MagicMock()
+        mock_response = MagicMock()
+        mock_handler.return_value = mock_response
+
+        result = mw.wrap_model_call(mock_request, mock_handler)
+
+        mock_handler.assert_called_once_with(overridden)
+        assert result == mock_response
