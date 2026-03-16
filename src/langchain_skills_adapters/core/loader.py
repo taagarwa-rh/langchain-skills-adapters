@@ -5,8 +5,6 @@ import frontmatter
 
 from langchain_skills_adapters.core.base import Skill, SkillCatalog
 
-RESOURCE_DIRS = ["references", "scripts", "assets"]
-
 
 class SkillsLoader:
     """Load skills from a directory."""
@@ -32,9 +30,7 @@ class SkillsLoader:
             meta = frontmatter.load(path)
             content = path.read_text()
             content = content[content.find("---", 4) :].strip()
-            resources = []
-            for dirname in RESOURCE_DIRS:
-                resources.extend(list(path.parent.glob(f"{dirname}/**/*")))
+            resources = [p for p in path.parent.glob("**/*") if p != path]
 
             # Create Skill obj
             try:
