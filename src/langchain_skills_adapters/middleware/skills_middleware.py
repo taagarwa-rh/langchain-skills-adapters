@@ -1,4 +1,5 @@
 from os import PathLike
+from pathlib import Path
 from typing import Callable
 
 from langchain.agents.middleware import AgentMiddleware, ModelRequest, ModelResponse
@@ -22,11 +23,11 @@ class SkillsMiddleware(AgentMiddleware):
         If your agent needs to execute scripts from your skill, it's recommended that you add script execution tool to your agent.
 
         Args:
-            skills_path: Absolute path to the directory containing skills.
+            skills_path: Path to the directory containing skills.
 
         """
         # Create system prompt
-        self.skills_path = skills_path
+        self.skills_path = Path(skills_path).resolve()
         self.skills_loader = SkillsLoader(skills_path=skills_path)
         skill_catalog = self.skills_loader.get_catalog()
         self.system_prompt = (
@@ -39,7 +40,7 @@ class SkillsMiddleware(AgentMiddleware):
         )
 
         # Add skills_file_read tool to agent's tool list
-        self.read_file_tool = ReadFileTool(name="skills_file_read", root_dir=str(skills_path))
+        self.read_file_tool = ReadFileTool(name="skills_file_read", root_dir=str(self.skills_path))
         self.tools = [self.read_file_tool]
 
     def wrap_model_call(self, request: ModelRequest, handler: Callable[[ModelRequest], ModelResponse]):

@@ -26,7 +26,7 @@ class SkillsTool(BaseTool):
         Create a new instance of the SkillsTool.
 
         Args:
-            skills_path: Absolute path to the directory containing skills.
+            skills_path: Path to the directory containing skills.
 
         """
         # Initialize skill loader

@@ -98,3 +98,64 @@ class TestSkillsLoaderGetSkill:
         loader = SkillsLoader(skills_path)
         with pytest.raises(ValueError, match="not found"):
             loader.get_skill("nonexistent-skill")
+
+
+class TestSkillsLoaderResources:
+    def test_loaded_skill_has_resources(self, skills_path):
+        loader = SkillsLoader(skills_path)
+        skill = loader.skill_map["my-skill"]
+        assert len(skill.resources) > 0
+
+    def test_resources_contain_expected_files(self, skills_path):
+        loader = SkillsLoader(skills_path)
+        skill = loader.skill_map["my-skill"]
+        resource_names = {r.name for r in skill.resources}
+        assert "script.py" in resource_names
+        assert "reference.md" in resource_names
+        assert "asset.json" in resource_names
+
+    def test_resources_exclude_skill_md(self, skills_path):
+        loader = SkillsLoader(skills_path)
+        skill = loader.skill_map["my-skill"]
+        assert all(r.name != "SKILL.md" for r in skill.resources)
+
+    def test_resources_exclude_directories(self, tmp_path):
+        skill_dir = tmp_path / "test-skill"
+        skill_dir.mkdir()
+        (skill_dir / "SKILL.md").write_text("---\nname: test-skill\ndescription: test\n---\nContent.")
+        sub_dir = skill_dir / "subdir"
+        sub_dir.mkdir()
+        (sub_dir / "file.txt").write_text("hello")
+
+        loader = SkillsLoader(tmp_path)
+        skill = loader.skill_map["test-skill"]
+        assert all(r.is_file() for r in skill.resources)
+        assert not any(r.is_dir() for r in skill.resources)
+
+
+class TestSkillsLoaderRelativePath:
+    def test_accepts_relative_path(self, skills_path, monkeypatch):
+        monkeypatch.chdir(skills_path.parent)
+        loader = SkillsLoader("skills")
+        assert loader.skills_path == skills_path
+        assert "my-skill" in loader.skill_map
+
+
+class TestSkillsLoaderMultipleSkills:
+    def test_loads_multiple_skills(self, tmp_path):
+        for name in ("skill-a", "skill-b"):
+            d = tmp_path / name
+            d.mkdir()
+            (d / "SKILL.md").write_text(f"---\nname: {name}\ndescription: {name} desc\n---\nContent for {name}.")
+        loader = SkillsLoader(tmp_path)
+        assert "skill-a" in loader.skill_map
+        assert "skill-b" in loader.skill_map
+        assert len(loader.skill_catalog.skills) == 2
+
+    def test_duplicate_names_raises_error(self, tmp_path):
+        for subdir in ("dir1", "dir2"):
+            d = tmp_path / subdir
+            d.mkdir()
+            (d / "SKILL.md").write_text(f"---\nname: dupe\ndescription: from {subdir}\n---\nContent.")
+        with pytest.raises(ValueError):
+            SkillsLoader(tmp_path)

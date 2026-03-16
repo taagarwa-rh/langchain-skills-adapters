@@ -25,6 +25,19 @@ pip install langchain-skills-adapters
 
 ## Skills Format
 
+The skill directory must be in the following format to be loaded correctly:
+
+```
+skills/
+├── skill-name/
+│   ├── SKILL.md        # Required: instructions + metadata
+│   ├── scripts/        # Optional: executable code
+│   ├── references/     # Optional: documentation
+│   ├── assets/         # Optional: templates, resources
+│   └── ...             # Any other additional files or directories        
+└── other skills...
+```
+
 Skills must follow the [Anthropic Open Standard for Skills](https://agentskills.io/home).
 This includes having frontmatter with at minimum the name and skill description.
 
@@ -38,18 +51,6 @@ description: This is my skill
 
 Skill content
 
-```
-
-The skill directory must be in the following format to be loaded correctly:
-
-```
-skills
-├── my-skill
-│   ├── assets          # Required: instructions + metadata
-│   ├── references      # Optional: executable code
-│   ├── scripts         # Optional: documentation
-│   └── SKILL.md        # Optional: templates, resources
-└── other skills...
 ```
 
 ## Usage
