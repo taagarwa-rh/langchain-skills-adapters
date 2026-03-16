@@ -55,13 +55,13 @@ class TestSkillsToolRun:
 
     def test_invoke_returns_skill_content(self, skills_path):
         tool = SkillsTool(skills_path)
-        result = tool.invoke({"name": "my-skill"})
+        result = tool.invoke({"skill_name": "my-skill"})
         assert "summarization assistant" in result
         assert "skill_content" in result
 
     def test_invoke_with_invalid_name_returns_error(self, skills_path):
         tool = SkillsTool(skills_path)
-        result = tool.invoke({"name": "does-not-exist"})
+        result = tool.invoke({"skill_name": "does-not-exist"})
         assert "Error" in result
         assert "does-not-exist" in result
 
