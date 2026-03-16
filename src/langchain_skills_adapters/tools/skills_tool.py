@@ -12,7 +12,7 @@ from langchain_skills_adapters.core import SkillsLoader
 class SkillsToolArgsSchema(BaseModel):
     """Args schema for skills tool."""
 
-    name: str
+    skill_name: str = Field(description="Name of the skill to activate.")
 
 
 class SkillsTool(BaseTool):
@@ -52,13 +52,23 @@ class SkillsTool(BaseTool):
             skills_loader=skills_loader,
         )
 
-    def _run(self, name: str, run_manager: Optional[CallbackManagerForToolRun] = None):
-        """Run the tool."""
+    def _run(self, skill_name: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
+        """
+        Run the tool.
+
+        Args:
+            skill_name (str): Name of the skill to activate.
+            run_manager (CallbackManagerForToolRun, optional): Callback manager for the tool run.
+
+        Returns:
+            str: Content of the skill in XML format if found, otherwise an error message.
+
+        """
         try:
-            skill = self.skills_loader.get_skill(name=name)
+            skill = self.skills_loader.get_skill(name=skill_name)
             return skill.to_content()
         except ValueError:
-            return f"Error: Skill '{name}' does not exist."
+            return f"Error: Skill '{skill_name}' does not exist."
         except Exception as e:
             return f"Error: {e}"
 
