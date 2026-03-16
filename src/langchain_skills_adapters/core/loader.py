@@ -30,7 +30,7 @@ class SkillsLoader:
             meta = frontmatter.load(path)
             content = path.read_text()
             content = content[content.find("---", 4) :].strip()
-            resources = [p for p in path.parent.glob("**/*") if p != path]
+            resources = [p for p in path.parent.glob("**/*") if p != path and not p.is_dir()]
 
             # Create Skill obj
             try:
