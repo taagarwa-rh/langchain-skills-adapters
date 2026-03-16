@@ -12,7 +12,7 @@ class SkillsLoader:
     def __init__(self, skills_path: PathLike):
         """Initialize SkillsLoader."""
         # Save vars
-        self.skills_path = skills_path
+        self.skills_path: Path = Path(skills_path).resolve()
 
         # Initialize the skill catalog and map
         self.skill_catalog: SkillCatalog = None
@@ -25,7 +25,7 @@ class SkillsLoader:
         """Load skills from the skills_path."""
         # Load skills from the directory
         skills = []
-        for path in Path(self.skills_path).glob("**/SKILL.md"):
+        for path in self.skills_path.glob("**/SKILL.md"):
             # Gather skill info
             meta = frontmatter.load(path)
             content = path.read_text()
