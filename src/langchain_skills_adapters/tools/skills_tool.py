@@ -4,7 +4,7 @@ from typing import Optional
 
 from langchain_core.callbacks import CallbackManagerForToolRun
 from langchain_core.tools import BaseTool
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from langchain_skills_adapters.core import SkillsLoader
 
@@ -25,8 +25,15 @@ class SkillsTool(BaseTool):
         """
         Create a new instance of the SkillsTool.
 
+        This tool enables the agent to activate skills.
+        It loads all skills from the skills_path and adds the skill names and descriptions to its tool description.
+        The tool takes one argument, `skill_name`, which loads the skill content for the named skill.
+        If your skills directory contains resource files (such as scripts, assets, etc.), it's recommended that you
+        add another tool (such as a `ReadFileTool`) to enable your agent to read these files.
+        If your agent needs to execute scripts from your skill, it's recommended that you add a script execution tool to your agent.
+
         Args:
-            skills_path: Path to the directory containing skills.
+            skills_path (PathLike): Path to the directory containing skills.
 
         """
         # Initialize skill loader

@@ -10,7 +10,13 @@ class SkillsLoader:
     """Load skills from a directory."""
 
     def __init__(self, skills_path: PathLike):
-        """Initialize SkillsLoader."""
+        """
+        Initialize SkillsLoader.
+
+        Args:
+            skills_path (PathLike): Path to the directory containing skills.
+
+        """
         # Save vars
         self.skills_path: Path = Path(skills_path).resolve()
 
@@ -52,7 +58,19 @@ class SkillsLoader:
         return self.skill_catalog.to_str()
 
     def get_skill(self, name: str) -> Skill:
-        """Get a skill by name."""
+        """
+        Get a skill by name.
+
+        Args:
+            name (str): Name of the skill to fetch.
+
+        Returns:
+            Skill: Skill object if found.
+
+        Raises:
+            ValueError: If the skill is not found.
+
+        """
         try:
             return self.skill_map[name]
         except KeyError:
