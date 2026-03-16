@@ -2,18 +2,41 @@ name: Release
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*"
 
 permissions:
   contents: write
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Check import sorting
+        run: uv run ruff check --select I src tests
+
+      - name: Check formatting
+        run: uv run ruff format --check src tests
+
+      - name: Lint
+        run: uv run ruff check src tests
+
+      - name: Run tests
+        run: uv run pytest tests/
+
   release:
+    needs: check
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
       contents: write
       id-token: write
+      attestations: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,48 +46,41 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v4
 
-      - name: Extract version from pyproject.toml
-        id: version
+      - name: Validate tag matches package version
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          VERSION=$(grep '^version' pyproject.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Check if tag already exists
-        id: tag_check
-        run: |
-          TAG="${{ steps.version.outputs.version }}"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            # Tag exists — append build number
-            BUILD=1
-            while git rev-parse "${TAG}.${BUILD}" >/dev/null 2>&1; do
-              BUILD=$((BUILD + 1))
-            done
-            echo "tag=${TAG}.${BUILD}" >> "$GITHUB_OUTPUT"
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-            echo "exists=false" >> "$GITHUB_OUTPUT"
+          TAG_VERSION="${TAG#v}"
+          PKG_VERSION=$(grep '^version' pyproject.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match pyproject.toml version ($PKG_VERSION)"
+            exit 1
           fi
 
       - name: Build package
         run: uv build
 
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: dist/*
+
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          attestations: true
 
-      - name: Generate release notes from merge commits
+      - name: Generate release notes
         id: notes
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          TAG="${{ steps.tag_check.outputs.tag }}"
-          # Find the previous tag
           PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
           if [ -n "$PREV_TAG" ]; then
             RANGE="${PREV_TAG}..HEAD"
           else
             RANGE="HEAD"
           fi
-          # Collect commit list
           COMMITS=$(git log "$RANGE" --pretty=format:"- %s (%h)" --no-merges)
           {
             echo "notes<<NOTES_EOF"
@@ -76,13 +92,17 @@ jobs:
             echo "NOTES_EOF"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Create tag and release
+      - name: Create GitHub release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          NOTES: ${{ steps.notes.outputs.notes }}
         run: |
-          TAG="${{ steps.tag_check.outputs.tag }}"
-          git tag "$TAG"
-          git push origin "$TAG"
+          PRERELEASE_FLAG=""
+          if [[ "$TAG" == *"rc"* ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
           gh release create "$TAG" dist/* \
             --title "$TAG" \
-            --notes "${{ steps.notes.outputs.notes }}"
+            --notes "$NOTES" \
+            $PRERELEASE_FLAG
