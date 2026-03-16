@@ -51,10 +51,14 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           TAG_VERSION="${TAG#v}"
+          BASE_TAG_VERSION=$(echo "$TAG_VERSION" | sed 's/\(a\|b\|rc\)[0-9]*$//')
           PKG_VERSION=$(grep '^version' pyproject.toml | head -1 | sed 's/.*"\(.*\)"/\1/')
-          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+          if [ "$BASE_TAG_VERSION" != "$PKG_VERSION" ]; then
             echo "::error::Tag version ($TAG_VERSION) does not match pyproject.toml version ($PKG_VERSION)"
             exit 1
+          fi
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            sed -i "s/^version = .*/version = \"${TAG_VERSION}\"/" pyproject.toml
           fi
 
       - name: Build package
