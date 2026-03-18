@@ -68,5 +68,12 @@ class SkillsLoader:
         except KeyError:
             raise ValueError(f"Skill {name} not found.")
 
+    def get_all_allowed_tools(self) -> set[str]:
+        """Load all allowed tools from all skills."""
+        allowed_tools = set()
+        for skill in self.skill_catalog.skills:
+            allowed_tools.update(skill.allowed_tools)
+        return allowed_tools
+
 
 __all__ = ["SkillsLoader"]
