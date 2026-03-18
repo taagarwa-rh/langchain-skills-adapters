@@ -1,8 +1,6 @@
 from os import PathLike
 from pathlib import Path
 
-import frontmatter
-
 from langchain_skills_adapters.core.base import Skill, SkillCatalog
 
 
@@ -32,15 +30,9 @@ class SkillsLoader:
         # Load skills from the directory
         skills = []
         for path in self.skills_path.glob("**/SKILL.md"):
-            # Gather skill info
-            meta = frontmatter.load(path)
-            content = path.read_text()
-            content = content[content.find("---", 4) :].strip()
-            resources = [p for p in path.parent.glob("**/*") if p != path and not p.is_dir()]
-
             # Create Skill obj
             try:
-                skill = Skill(location=path, content=content, resources=resources, **meta)
+                skill = Skill.from_path(path=path)
             except Exception as e:
                 raise ValueError(f"Failed to load skill {path}: {e}")
 

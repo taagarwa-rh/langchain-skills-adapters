@@ -29,7 +29,10 @@ class TestSkillModel:
         assert skill.license is None
         assert skill.compatibility is None
         assert skill.metadata is None
-        assert skill.allowed_tools is None
+
+    def test_allowed_tools_defaults_to_empty_list(self):
+        skill = _make_skill()
+        assert skill.allowed_tools == []
 
     def test_resources_defaults_to_empty_list(self):
         skill = _make_skill()
@@ -127,6 +130,68 @@ class TestSkillToContent:
         result = skill.to_content()
         assert "<file>a.txt</file>" in result
         assert "<file>b.txt</file>" in result
+
+
+class TestSkillFromPath:
+    def test_loads_skill_from_valid_file(self, tmp_path):
+        skill_file = tmp_path / "SKILL.md"
+        skill_file.write_text("---\nname: my-skill\ndescription: A cool skill.\n---\nDo the thing.\n")
+        skill = Skill.from_path(skill_file)
+        assert skill.name == "my-skill"
+        assert skill.description == "A cool skill."
+        assert skill.content == "Do the thing."
+        assert skill.location == skill_file
+
+    def test_parses_allowed_tools(self, tmp_path):
+        skill_file = tmp_path / "SKILL.md"
+        skill_file.write_text("---\nname: my-skill\ndescription: A skill.\nallowed-tools: tool_a tool_b\n---\nContent here.\n")
+        skill = Skill.from_path(skill_file)
+        assert skill.allowed_tools == ["tool_a", "tool_b"]
+
+    def test_optional_frontmatter_fields(self, tmp_path):
+        skill_file = tmp_path / "SKILL.md"
+        skill_file.write_text("---\nname: my-skill\ndescription: A skill.\nlicense: MIT\ncompatibility: '>=1.0'\n---\nContent.\n")
+        skill = Skill.from_path(skill_file)
+        assert skill.license == "MIT"
+        assert skill.compatibility == ">=1.0"
+
+    def test_missing_name_raises(self, tmp_path):
+        skill_file = tmp_path / "SKILL.md"
+        skill_file.write_text("---\ndescription: A skill.\n---\nContent.\n")
+        with pytest.raises(ValueError, match="Missing required field name"):
+            Skill.from_path(skill_file)
+
+    def test_missing_description_raises(self, tmp_path):
+        skill_file = tmp_path / "SKILL.md"
+        skill_file.write_text("---\nname: my-skill\n---\nContent.\n")
+        with pytest.raises(ValueError, match="Missing required field description"):
+            Skill.from_path(skill_file)
+
+    def test_discovers_resource_files(self, tmp_path):
+        skill_dir = tmp_path / "my-skill"
+        skill_dir.mkdir()
+        skill_file = skill_dir / "SKILL.md"
+        skill_file.write_text("---\nname: my-skill\ndescription: A skill.\n---\nContent.\n")
+        resource = skill_dir / "data.txt"
+        resource.write_text("some data")
+
+        skill = Skill.from_path(skill_file)
+        assert resource in skill.resources
+
+    def test_excludes_skill_file_from_resources(self, tmp_path):
+        skill_dir = tmp_path / "my-skill"
+        skill_dir.mkdir()
+        skill_file = skill_dir / "SKILL.md"
+        skill_file.write_text("---\nname: my-skill\ndescription: A skill.\n---\nContent.\n")
+        skill = Skill.from_path(skill_file)
+        assert skill_file not in skill.resources
+
+    def test_multiline_content(self, tmp_path):
+        skill_file = tmp_path / "SKILL.md"
+        skill_file.write_text("---\nname: my-skill\ndescription: A skill.\n---\nLine one.\n\nLine two.\n")
+        skill = Skill.from_path(skill_file)
+        assert "Line one." in skill.content
+        assert "Line two." in skill.content
 
 
 class TestSkillCatalogModel:
