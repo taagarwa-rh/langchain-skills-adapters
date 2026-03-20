@@ -1,7 +1,5 @@
 # Langchain Skills Adapters
 
-[![CI](https://github.com/taagarwa-rh/langchain-skills-adapters/actions/workflows/ci.yml/badge.svg)](https://github.com/taagarwa-rh/langchain-skills-adapters/actions/workflows/ci.yml)
-
 Langchain adapters to support skills in your agent.
 
 ## Features
