@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2026-03-20
+
+- ✅ Add tests to complete coverage
+- 💚 Add coverage to CI
+- ✅ Fix warning in tests
+- ✅ Update middleware tests to use Langchain objects
+- 📝 Add README to examples
+- 🐛 Add __version__ to package
+- ♻️ Remove duplicated logic for skill name uniqueness
+- 🎨 Fix typo in frontmatter
+- 🔧 Remove broken project.scripts entry
+- ✨ Add git-cliff config for making changelogs
+- 📝 Add CONTRIBUTING.md
+- ✨ Add support for dynamic tool registration
+- ♻️ Move skill load from path to Skill class
+
 ## [0.1.5] - 2026-03-16
 
 - ✨ Add CI workflow
