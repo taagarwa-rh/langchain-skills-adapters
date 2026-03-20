@@ -21,7 +21,7 @@ class Skill(BaseModel):
     @classmethod
     def from_path(cls, path: Path):
         """Create a Skill object from a file path."""
-        # Load frontmattter
+        # Load frontmatter
         metadata = frontmatter.load(path).to_dict()
 
         # Check for required fields
