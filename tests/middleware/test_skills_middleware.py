@@ -799,7 +799,9 @@ class TestEndToEnd:
         """Full round-trip: model call activates skill, then tool call resolves the dynamic tool."""
         dynamic_tool = MagicMock(spec=BaseTool)
         dynamic_tool.name = "my_tool_impl"
-        mw = SkillsMiddleware(skills_path, dynamic_tools={"my_tool": dynamic_tool})
+        other_tool = MagicMock(spec=BaseTool)
+        other_tool.name = "other_tool_impl"
+        mw = SkillsMiddleware(skills_path, dynamic_tools={"my_tool": dynamic_tool, "other_tool": other_tool})
 
         # Step 1: wrap_model_call with activated skill
         skill_md_path = str(skills_path / "tool-skill" / "SKILL.md")
