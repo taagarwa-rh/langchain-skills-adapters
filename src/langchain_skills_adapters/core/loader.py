@@ -35,10 +35,6 @@ class SkillsLoader:
                 skill = Skill.from_path(path=path)
             except Exception as e:
                 raise ValueError(f"Failed to load skill {path}: {e}")
-
-            # Check if skill with name already exists
-            if any(s.name == skill.name for s in skills):
-                raise ValueError(f"Duplicate skill name: {skill.name}")
             skills.append(skill)
 
         # Save discovered skills
