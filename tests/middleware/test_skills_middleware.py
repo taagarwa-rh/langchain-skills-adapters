@@ -377,6 +377,21 @@ class TestUpdateTools:
         assert "nonexistent_tool" in str(w[0].message)
         assert len(result) == 1
 
+    def test_dict_tool_always_included(self, skills_path, make_model_request, make_skill):
+        dict_tool = {"type": "function", "function": {"name": "dict_tool", "parameters": {}}}
+        skill = make_skill(allowed_tools=["my_tool"])
+        dynamic_tool = MagicMock(spec=BaseTool)
+        dynamic_tool.name = "my_tool_impl"
+
+        mw = SkillsMiddleware(skills_path, dynamic_tools={"my_tool": dynamic_tool})
+        request = make_model_request(messages=[], tools=[dict_tool])
+
+        with patch.object(mw, "_get_activated_skills", return_value=[skill]):
+            result = mw._update_tools(request)
+
+        assert dict_tool in result
+        assert dynamic_tool in result
+
     def test_deduplicates_tools_across_skills(self, skills_path, make_model_request, make_skill):
         shared_tool = MagicMock(spec=BaseTool)
         shared_tool.name = "my_tool_impl"
