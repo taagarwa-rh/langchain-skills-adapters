@@ -23,9 +23,6 @@ dependencies = [
 Homepage = "https://github.com/taagarwa-rh/langchain-skills-adapters"
 Issues = "https://github.com/taagarwa-rh/langchain-skills-adapters/issues"
 
-[project.scripts]
-langchain-skills-adapters = "langchain_skills_adapters:main"
-
 [project.optional-dependencies]
 examples = [
     "beautifulsoup4>=4.14.3",
