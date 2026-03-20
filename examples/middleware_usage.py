@@ -10,4 +10,4 @@ skills_middleware = SkillsMiddleware(skills_dir)
 
 # Create the agent
 agent = create_agent("openai:gpt-5", middleware=[skills_middleware])
-response = agent.invoke(input={"messages": {"role": "user", "content": "What does my-skill do?"}})
+response = agent.invoke(input={"messages": {"role": "user", "content": "What skills do you have?"}})

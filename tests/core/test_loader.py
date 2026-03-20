@@ -141,6 +141,34 @@ class TestSkillsLoaderRelativePath:
         assert "my-skill" in loader.skill_map
 
 
+class TestSkillsLoaderGetAllAllowedTools:
+    def test_returns_empty_set_when_no_skills(self, tmp_path):
+        loader = SkillsLoader(tmp_path)
+        assert loader.get_all_allowed_tools() == set()
+
+    def test_returns_allowed_tools_from_single_skill(self, tmp_path):
+        d = tmp_path / "skill-a"
+        d.mkdir()
+        (d / "SKILL.md").write_text("---\nname: skill-a\ndescription: desc\nallowed-tools: tool_x tool_y\n---\nContent.")
+        loader = SkillsLoader(tmp_path)
+        assert loader.get_all_allowed_tools() == {"tool_x", "tool_y"}
+
+    def test_returns_union_across_multiple_skills(self, tmp_path):
+        for name, tools_str in [("skill-a", "tool_x"), ("skill-b", "tool_y tool_z")]:
+            d = tmp_path / name
+            d.mkdir()
+            (d / "SKILL.md").write_text(f"---\nname: {name}\ndescription: desc\nallowed-tools: {tools_str}\n---\nContent.")
+        loader = SkillsLoader(tmp_path)
+        assert loader.get_all_allowed_tools() == {"tool_x", "tool_y", "tool_z"}
+
+    def test_returns_empty_set_when_skills_have_no_allowed_tools(self, tmp_path):
+        d = tmp_path / "skill-a"
+        d.mkdir()
+        (d / "SKILL.md").write_text("---\nname: skill-a\ndescription: desc\n---\nContent.")
+        loader = SkillsLoader(tmp_path)
+        assert loader.get_all_allowed_tools() == set()
+
+
 class TestSkillsLoaderMultipleSkills:
     def test_loads_multiple_skills(self, tmp_path):
         for name in ("skill-a", "skill-b"):

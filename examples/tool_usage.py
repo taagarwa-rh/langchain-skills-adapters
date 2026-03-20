@@ -16,5 +16,5 @@ read_file_tool = ReadFileTool(root_dir=skills_dir)
 # Create the agent with the SkillsTool
 tools = [skills_tool, read_file_tool]
 agent = create_agent("openai:gpt-5", tools=tools)
-response = agent.invoke(input={"messages": {"role": "user", "content": "What does my-skill do?"}})
+response = agent.invoke(input={"messages": {"role": "user", "content": "What skills do you have?"}})
 print(response)

@@ -1,7 +1,8 @@
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Self
 
-from pydantic import BaseModel
+import frontmatter
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class Skill(BaseModel):
@@ -14,8 +15,31 @@ class Skill(BaseModel):
     license: Optional[str] = None
     compatibility: Optional[str] = None
     metadata: Optional[dict[str, Any]] = None
-    allowed_tools: Optional[list[str]] = None
+    allowed_tools: list[str] = []
     resources: list[Path] = []
+
+    @classmethod
+    def from_path(cls, path: Path):
+        """Create a Skill object from a file path."""
+        # Load frontmatter
+        metadata = frontmatter.load(path).to_dict()
+
+        # Check for required fields
+        required_fields = ["name", "description"]
+        for field in required_fields:
+            if field not in metadata:
+                raise ValueError(f"Missing required field {field} in frontmatter of {path}")
+
+        # Format fields where needed
+        if "allowed-tools" in metadata:
+            allowed_tools = metadata.pop("allowed-tools")
+            metadata["allowed_tools"] = allowed_tools.split(" ")
+
+        # Read skill resources
+        resources = [p for p in path.parent.glob("**/*") if p != path and not p.is_dir()]
+
+        # Create the skill
+        return Skill(resources=resources, location=path, **metadata)
 
     def to_catalog(self) -> str:
         """Convert to skill catalog XML format."""
@@ -51,7 +75,17 @@ class Skill(BaseModel):
 class SkillCatalog(BaseModel):
     """Skill catalog."""
 
+    model_config = ConfigDict(validate_assignment=True)
+
     skills: list[Skill] = []
+
+    @model_validator(mode="after")
+    def validate_no_matching_names(self) -> Self:
+        """Check for duplicate skill names."""
+        names = [s.name for s in self.skills]
+        if any(names.count(name) > 1 for name in names):
+            raise ValueError("Duplicate skill names found.")
+        return self
 
     def to_str(self) -> str:
         """Convert to string."""

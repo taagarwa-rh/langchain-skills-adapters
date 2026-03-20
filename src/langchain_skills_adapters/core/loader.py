@@ -1,8 +1,6 @@
 from os import PathLike
 from pathlib import Path
 
-import frontmatter
-
 from langchain_skills_adapters.core.base import Skill, SkillCatalog
 
 
@@ -32,21 +30,11 @@ class SkillsLoader:
         # Load skills from the directory
         skills = []
         for path in self.skills_path.glob("**/SKILL.md"):
-            # Gather skill info
-            meta = frontmatter.load(path)
-            content = path.read_text()
-            content = content[content.find("---", 4) :].strip()
-            resources = [p for p in path.parent.glob("**/*") if p != path and not p.is_dir()]
-
             # Create Skill obj
             try:
-                skill = Skill(location=path, content=content, resources=resources, **meta)
+                skill = Skill.from_path(path=path)
             except Exception as e:
                 raise ValueError(f"Failed to load skill {path}: {e}")
-
-            # Check if skill with name already exists
-            if any(s.name == skill.name for s in skills):
-                raise ValueError(f"Duplicate skill name: {skill.name}")
             skills.append(skill)
 
         # Save discovered skills
@@ -75,6 +63,13 @@ class SkillsLoader:
             return self.skill_map[name]
         except KeyError:
             raise ValueError(f"Skill {name} not found.")
+
+    def get_all_allowed_tools(self) -> set[str]:
+        """Load all allowed tools from all skills."""
+        allowed_tools = set()
+        for skill in self.skill_catalog.skills:
+            allowed_tools.update(skill.allowed_tools)
+        return allowed_tools
 
 
 __all__ = ["SkillsLoader"]
